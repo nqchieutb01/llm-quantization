@@ -1,0 +1,33 @@
+# Model Configuration
+model:
+  model_id: "Qwen/Qwen3-0.6B"
+  torch_dtype: "auto"
+
+# Quantization Configuration
+quantization:
+  method: "gptq"  # Options: gptq, awq
+  scheme: "W4A16"  # Options: W4A16, W8A16, FP8_DYNAMIC, W8A8
+  targets: "__ALL__"  # Target layers to quantize __ALL__ or Linear
+  ignore: ["lm_head"]  # Layers to ignore during quantization
+  # group_size: 128  # Group size for quantization
+
+  # SmoothQuant settings (optional)
+  # use_smoothquant: false
+  # smoothing_strength: 0.8
+
+# Dataset Configuration
+dataset:
+  calibration:
+    name: "openai/gsm8k"  # Options: openai/gsm8k, lambada, HuggingFaceH4/ultrachat_200k
+    # subset: "train_sft[:2048]"  # Dataset subset/split "main" for gsm8k, train_sft[:2048] for HuggingFaceH4/ultrachat_200k
+    num_samples: 2048
+    max_seq_length: 2048
+    seed: 42
+
+# Output Configuration
+output:
+  save_dir: null  # If null, auto-generate based on model and config
+  save_compressed: true
+  output_path: "result"
+  log_dir: "sparse_logs"
+

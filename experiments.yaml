@@ -1,0 +1,55 @@
+# Experiment and Evaluation Configuration
+# This file contains both quantization parameters and evaluation settings
+
+# Base Model Configuration
+model:
+  baseline: "Qwen/Qwen3-4B"
+
+# Quantization Experiments
+# Define parameter combinations to test
+quantization_experiments:
+  methods: ["gptq"]  # Options: gptq, awq
+  schemes: ["W4A16", "W8A16"]  # Options: W4A16, W8A16, W4A8, W8A8
+  calibration_datasets: ["openai/gsm8k"]  # Options: openai/gsm8k, HuggingFaceH4/ultrachat_200k, lambada
+  num_samples: [2048]  # Number of calibration samples
+
+# Evaluation Configuration
+evaluation:
+  # Tasks to evaluate on
+  tasks: ["gsm8k"]  # Options: gsm8k, lambada, wikitext
+  
+  # Evaluation parameters
+  num_fewshot: 5
+  limit: 500  # Number of samples to evaluate (null for all)
+  batch_size: 8
+  
+  # Device settings
+  device: "cuda:0"
+  gpu_memory_utilization: 0.6
+
+# Model Directory Settings
+paths:
+  models_dir: "models"  # Where quantized models are saved
+  results_dir: "result"  # Where evaluation results are saved
+
+# Quantized models to evaluate
+# Auto-discover models in models_dir or specify explicitly
+quantized_models:
+  auto_discover: false  # Automatically find models in models_dir
+  # Or specify models explicitly:
+  explicit:
+    # - "models/4B/Qwen3-4B-RTN-INT4"
+
+    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k128"
+    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k256"
+    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k512"
+    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k1024"
+    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k2048"
+
+    # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k128"
+    # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k256"
+    # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k512"
+    # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k1024"
+    - "models/0.6B/Qwen3-0.6B-W4A16-all_gsm8k2048"
+    - "models/1.7B/Qwen3-1.7B-W4A16-all_gsm8k2048"
+    - "models/4B/Qwen3-4B-W4A16-all_gsm8k2048"
