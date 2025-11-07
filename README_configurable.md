@@ -1,4 +1,4 @@
-# Configurable LLM Quantization and Evaluation
+# LLM Quantization and Evaluation
 
 A flexible system for quantizing and evaluating Large Language Models using GPTQ and AWQ methods.
 
@@ -13,19 +13,32 @@ A flexible system for quantizing and evaluating Large Language Models using GPTQ
 - **Automated Evaluation**: Built-in evaluation pipeline
 
 ## Installation
-
+**Environemt for RTN, AWQ, GPTQ**
 ```bash
 pip install llmcompressor transformers datasets pyyaml
 pip install lm-eval[vllm]  # For evaluation
 ```
+**Enviroment for GPTAQ**: Follow instruction in the original Repo https://github.com/ModelCloud/GPTQModel
+
+
 
 ## Quick Start
 
-### 1. Quantization
+### 1. Quantization 
 
-**Using custom config file:**
+**For GPTQ, AWQ:**
 ```bash
 python run_quantize_configurable.py --config my_config.yaml
+```
+**For GPTAQ**
+```bash
+python gptq_v2.py --model-id Qwen/Qwen3-1.7B --dataset-name openai/gsm8k --subset main --num-samples 2048
+```
+
+**For RTN**
+
+```bash
+python rtn_quantize.py
 ```
 
 ### 2. Evaluation
@@ -45,14 +58,9 @@ python run_eval_configurable.py --quantized ./model1 ./model2
 python run_eval_configurable.py --all
 ```
 
-**Evaluate with custom device:**
-```bash
-python run_eval_configurable.py --baseline --quantized ./model1 --device cuda:1
-```
-
 ## Configuration
 
-### config.yaml Structure
+### config/config_quantize.yaml Structure
 
 ```yaml
 model:
@@ -114,16 +122,8 @@ python run_quantize_configurable.py \
   --num_samples 512
 ```
 
-### Example 3: GPTQ with SmoothQuant
 
-```bash
-python run_quantize_configurable.py \
-  --method gptq \
-  --scheme W4A16 \
-  --use_smoothquant
-```
-
-### Example 4: Evaluate Multiple Models
+### Example 3: Evaluate Multiple Models
 
 ```bash
 # Evaluate baseline
@@ -134,48 +134,6 @@ python run_eval_configurable.py --all
 
 # Evaluate on LAMBADA instead of GSM8K
 python run_eval_configurable.py --all --task lambada
-```
-
-### Example 5: Complete Pipeline
-
-```bash
-# 1. Quantize with GPTQ W4A16
-python run_quantize_configurable.py \
-  --model_id "Qwen/Qwen3-0.6B"\
-  --method gptq \
-  --scheme W4A16 \
-  --dataset "openai/gsm8k" \
-  --num_samples 2048
-
-# 2. Quantize with AWQ W8A16
-python run_quantize_configurable.py \
-  --method awq \
-  --scheme W8A16 \
-  --dataset "openai/gsm8k" \
-  --num_samples 1024
-
-# 3. Evaluate all models
-python run_eval_configurable.py --baseline --all
-```
-
-## Output Structure
-
-```
-.
-├── config.yaml
-├── run_quantize_configurable.py
-├── run_eval_configurable.py
-├── result/
-│   ├── baseline_2025-10-10T10-00-00.json
-│   ├── model1_2025-10-10T10-30-00.json
-│   └── samples_*.jsonl
-├── sparse_logs/
-│   └── oneshot_*.log
-└── Qwen2.5-0.5B-Instruct-GPTQ-W4A16-G128_gsm8k1024/
-    ├── model.safetensors
-    ├── config.json
-    ├── tokenizer.json
-    └── quantization_config.yaml
 ```
 
 ## Command-Line Arguments
@@ -213,8 +171,4 @@ python run_eval_configurable.py --baseline --all
 ### Evaluation
 - `gsm8k`: Math reasoning
 - `lambada`: Next word prediction
-
-## License
-
-See parent repository license.
 

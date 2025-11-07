@@ -38,18 +38,11 @@ quantized_models:
   auto_discover: false  # Automatically find models in models_dir
   # Or specify models explicitly:
   explicit:
-    # - "models/4B/Qwen3-4B-RTN-INT4"
-
-    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k128"
-    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k256"
-    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k512"
-    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k1024"
-    # - "models/1.7B/Qwen3-1.7B-AWQ-W4A16_ASYM_gsm8k2048"
 
     # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k128"
     # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k256"
     # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k512"
     # - "models/1.7B/Qwen3-1.7B-gptq-v2-4bit-gsm8k1024"
-    - "models/0.6B/Qwen3-0.6B-W4A16-all_gsm8k2048"
-    - "models/1.7B/Qwen3-1.7B-W4A16-all_gsm8k2048"
-    - "models/4B/Qwen3-4B-W4A16-all_gsm8k2048"
+    - "models/0.6B/Qwen3-0.6B-W4A16-half_layer_gsm8k2048"
+    - "models/1.7B/Qwen3-1.7B-W4A16-half_layer_gsm8k2048"
+    - "models/4B/Qwen3-4B-W4A16-half_layer_gsm8k2048"

@@ -2,6 +2,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from transformers import BitsAndBytesConfig
 
+# Implementation of RTN quantization
+
 model_id = "Qwen/Qwen3-4B"
 save_dir = "models/4B/Qwen3-4B-RTN-INT4"
 

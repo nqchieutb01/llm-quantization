@@ -182,7 +182,7 @@ def generate_output_dir(config: Dict[str, Any]) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Configurable LLM Quantization")
-    parser.add_argument('--config', type=str, default='config.yaml', 
+    parser.add_argument('--config', type=str, default='config_quantize.yaml', 
                         help='Path to configuration file')
     parser.add_argument('--model_id', type=str, help='Model ID to quantize')
     parser.add_argument('--method', type=str, choices=['gptq', 'awq'], 

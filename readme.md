@@ -1,263 +1,174 @@
-# Evaluation Guide
+# LLM Quantization and Evaluation
 
-## Overview
+A flexible system for quantizing and evaluating Large Language Models using GPTQ and AWQ methods.
 
-The evaluation system now uses only `experiments.yaml` for configuration, making it simpler and more streamlined.
+## Features
 
-## Configuration File: experiments.yaml
+- **Multiple Quantization Methods**: GPTQ, AWQ
+- **Flexible Weight/Activation Bits**: W4A16, W8A16, W4A8, W8A8
+- **Multiple Calibration Datasets**: GSM8K, LAMBADA, UltraChat
+- **SmoothQuant Support**: Optional smoothing for better quantization
+- **YAML Configuration**: Easy-to-manage configuration files
+- **CLI Overrides**: Command-line arguments override config values
+- **Automated Evaluation**: Built-in evaluation pipeline
 
-The `experiments.yaml` file contains:
-- Baseline model configuration
-- Quantization experiment parameters
-- Evaluation settings (tasks, few-shot, batch size, device)
-- Model discovery settings
+## Installation
+**Environemt for RTN, AWQ, GPTQ**
+```bash
+pip install llmcompressor transformers datasets pyyaml
+pip install lm-eval[vllm]  # For evaluation
+```
+**Enviroment for GPTAQ**: Follow instruction in the original Repo https://github.com/ModelCloud/GPTQModel
+
+
 
 ## Quick Start
 
-### 1. Evaluate Baseline Model
+### 1. Quantization 
 
+**For GPTQ, AWQ:**
+```bash
+python run_quantize_configurable.py --config my_config.yaml
+```
+**For GPTAQ**
+```bash
+python gptq_v2.py --model-id Qwen/Qwen3-1.7B --dataset-name openai/gsm8k --subset main --num-samples 2048
+```
+
+**For RTN**
+
+```bash
+python rtn_quantize.py
+```
+
+### 2. Evaluation
+
+**Evaluate baseline model:**
 ```bash
 python run_eval_configurable.py --baseline
 ```
 
-### 2. Evaluate All Quantized Models
+**Evaluate specific quantized models:**
+```bash
+python run_eval_configurable.py --quantized ./model1 ./model2
+```
 
+**Evaluate all quantized models:**
 ```bash
 python run_eval_configurable.py --all
 ```
 
-The script will auto-discover models in the `models/` directory.
+## Configuration
 
-### 3. Evaluate Both Baseline and All Quantized Models
-
-```bash
-python run_eval_configurable.py --baseline --all
-```
-
-### 4. Evaluate Specific Models
-
-```bash
-python run_eval_configurable.py --models models/model1 models/model2
-```
-
-### 5. Evaluate on Different Task
-
-```bash
-python run_eval_configurable.py --all --task lambada
-```
-
-### 6. Use Different GPU
-
-```bash
-python run_eval_configurable.py --all --device cuda:1
-```
-
-### 7. Dry Run (Preview Commands)
-
-```bash
-python run_eval_configurable.py --baseline --all --dry_run
-```
-
-## Configuration Examples
-
-### Basic experiments.yaml
+### config/config_quantize.yaml Structure
 
 ```yaml
 model:
-  baseline: "Qwen/Qwen2.5-0.5B-Instruct"
+  model_id: "Qwen/Qwen2.5-0.5B-Instruct"
+  torch_dtype: "auto"
 
-evaluation:
-  tasks: ["gsm8k", "lambada"]  # Multiple tasks
-  num_fewshot: 5
-  limit: 250
-  batch_size: 8
+quantization:
+  method: "gptq"  # gptq or awq
+  scheme: "W4A16"  # W4A16, W8A16, W4A8, W8A8
+  group_size: 128
+  targets: "Linear"
+  ignore: ["lm_head"]
+  use_smoothquant: false
+  smoothing_strength: 0.8
+
+dataset:
+  calibration:
+    name: "openai/gsm8k"
+    subset: "main"
+    num_samples: 1024
+    max_seq_length: 2048
+    seed: 42
+  evaluation:
+    name: "gsm8k"
+    num_fewshot: 5
+    limit: 250
+    batch_size: 8
+
+training:
   device: "cuda:0"
   gpu_memory_utilization: 0.8
 
-paths:
-  models_dir: "models"
-  results_dir: "result"
-
-quantized_models:
-  auto_discover: true  # Auto-find models in models_dir
+output:
+  save_dir: null  # auto-generated if null
+  save_compressed: true
+  output_path: "result"
+  log_dir: "sparse_logs"
 ```
 
-### Explicit Model Specification
+## Examples
 
-If you want to specify models explicitly instead of auto-discovery:
-
-```yaml
-quantized_models:
-  auto_discover: false
-  explicit:
-    - "models/Qwen2.5-0.5B-Instruct-GPTQ-W4A16-G128_gsm8k2048"
-    - "models/Qwen2.5-0.5B-Instruct-GPTQ-W8A16-G128_gsm8k2048"
-```
-
-## Output Structure
-
-### Results Files
-
-Each evaluation creates:
-- JSON result file: `result/modelname_task_timestamp.json`
-- Sample outputs: `result/samples_task_timestamp.jsonl`
-
-### Summary File
-
-After evaluation completes, a summary is saved:
-- `result/eval_summary_timestamp.yaml`
-
-Contains:
-- All evaluation results
-- Metrics extracted from each evaluation
-- Status of each evaluation
-- Links to output files
-
-## Features
-
-### 1. Auto-Discovery
-Automatically finds quantized models in the `models/` directory by pattern matching:
-- `*-W4A16-*`, `*-W8A16-*`, `*-W4A8-*`, `*-W8A8-*`
-- `*-GPTQ-*`, `*-AWQ-*`
-
-### 2. Results Table
-Displays a formatted table with:
-- Model name
-- Task
-- Status (✓ success, ✗ failed)
-- Accuracy metrics
-- Output file names
-
-### 3. Error Handling
-- `--continue_on_error`: Continue evaluating other models if one fails
-- Default: stops on first error
-
-### 4. Multi-Task Support
-Evaluate models on multiple tasks in a single run:
-
-```yaml
-evaluation:
-  tasks: ["gsm8k", "lambada", "hellaswag"]
-```
-
-## Complete Workflow Example
-
-### 1. Quantize Models
+### Example 1: GPTQ W4A16 on GSM8K
 
 ```bash
-# Quantize with GPTQ W4A16
-python run_quantize_configurable.py --config config.yaml
-
-# Or run multiple experiments
-python run_experiments.py --config config.yaml --experiments experiments.yaml
+python run_quantize_configurable.py \
+  --method gptq \
+  --scheme W4A16 \
+  --dataset "openai/gsm8k" \
+  --num_samples 1024
 ```
 
-### 2. Configure Evaluation
-
-Edit `experiments.yaml`:
-```yaml
-evaluation:
-  tasks: ["gsm8k"]
-  num_fewshot: 5
-  limit: 250
-  device: "cuda:0"
-```
-
-### 3. Run Evaluation
+### Example 2: AWQ W8A16 on UltraChat
 
 ```bash
-# Evaluate everything
-python run_eval_configurable.py --baseline --all
+python run_quantize_configurable.py \
+  --method awq \
+  --scheme W8A16 \
+  --dataset "HuggingFaceH4/ultrachat_200k" \
+  --num_samples 512
+```
 
-# Or evaluate on multiple tasks
-python run_eval_configurable.py --baseline --all --task gsm8k
+
+### Example 3: Evaluate Multiple Models
+
+```bash
+# Evaluate baseline
+python run_eval_configurable.py --baseline
+
+# Evaluate all quantized models
+python run_eval_configurable.py --all
+
+# Evaluate on LAMBADA instead of GSM8K
 python run_eval_configurable.py --all --task lambada
 ```
 
-### 4. Review Results
+## Command-Line Arguments
 
-Check the summary file:
-```bash
-cat result/eval_summary_*.yaml
-```
+### run_quantize_configurable.py
 
-Or individual result files:
-```bash
-ls -lt result/*.json | head
-```
+- `--config`: Path to configuration file (default: config.yaml)
+- `--model_id`: Model ID to quantize
+- `--method`: Quantization method (gptq, awq)
+- `--scheme`: Quantization scheme (W4A16, W8A16, W4A8, W8A8)
+- `--group_size`: Group size for quantization
+- `--dataset`: Calibration dataset name
+- `--num_samples`: Number of calibration samples
+- `--max_seq_length`: Maximum sequence length
+- `--output_dir`: Output directory
+- `--use_smoothquant`: Enable SmoothQuant
 
-## Command-Line Options
+### run_eval_configurable.py
 
-| Option | Description |
-|--------|-------------|
-| `--config PATH` | Path to experiments.yaml (default: experiments.yaml) |
-| `--baseline` | Evaluate baseline model |
-| `--all` | Evaluate all quantized models |
-| `--models PATH [PATH ...]` | Evaluate specific model paths |
-| `--task TASK` | Override task from config |
-| `--device DEVICE` | Override device (e.g., cuda:1) |
-| `--dry_run` | Print commands without executing |
-| `--continue_on_error` | Continue on failures |
+- `--config`: Path to configuration file (default: config.yaml)
+- `--baseline`: Evaluate baseline model
+- `--quantized`: Paths to quantized models to evaluate
+- `--all`: Evaluate all quantized models in current directory
+- `--device`: Device to use (e.g., cuda:0, cuda:1)
+- `--task`: Evaluation task (overrides config)
+- `--dry_run`: Print commands without executing
 
-## Tips
+## Supported Datasets
 
-1. **Start with dry run**: Use `--dry_run` to preview what will be evaluated
-2. **Use multiple GPUs**: If you have multiple GPUs, run evaluations in parallel:
-   ```bash
-   # Terminal 1
-   python run_eval_configurable.py --all --device cuda:0 &
-   
-   # Terminal 2
-   python run_eval_configurable.py --baseline --device cuda:1 &
-   ```
-3. **Monitor progress**: The script prints detailed progress for each evaluation
-4. **Check summaries**: Review `eval_summary_*.yaml` for quick overview of all results
-5. **Compare models**: All results use consistent naming for easy comparison
+### Calibration
+- `openai/gsm8k`: Grade school math problems
+- `lambada`: Language modeling dataset
+- `HuggingFaceH4/ultrachat_200k`: Multi-turn conversations
 
-## Troubleshooting
-
-**No models found:**
-- Check that models are in the `models_dir` specified in experiments.yaml
-- Ensure model directories contain model files (.safetensors or .bin)
-- Use `--models` to specify paths explicitly
-
-**OOM errors:**
-- Reduce `batch_size` in experiments.yaml
-- Lower `gpu_memory_utilization`
-- Use different GPU with `--device cuda:1`
-
-**Evaluation hangs:**
-- Check GPU availability: `nvidia-smi`
-- Ensure lm-eval and vllm are installed correctly
-- Try with smaller `limit` first
-
-## Advanced Usage
-
-### Evaluate Subset of Models
-
-```bash
-# Only evaluate W4A16 models
-python run_eval_configurable.py --models models/*W4A16*
-```
-
-### Custom Evaluation Config
-
-Create a separate config for different evaluation scenarios:
-
-```bash
-# Light evaluation
-python run_eval_configurable.py --config experiments_light.yaml --all
-
-# Full evaluation
-python run_eval_configurable.py --config experiments_full.yaml --all
-```
-
-### Batch Processing
-
-```bash
-# Evaluate all models on multiple tasks
-for task in gsm8k lambada hellaswag; do
-  python run_eval_configurable.py --all --task $task
-done
-```
+### Evaluation
+- `gsm8k`: Math reasoning
+- `lambada`: Next word prediction
 
