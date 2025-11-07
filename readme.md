@@ -15,7 +15,7 @@ A flexible system for quantizing and evaluating Large Language Models using GPTQ
 ## Installation
 **Environemt for RTN, AWQ, GPTQ**
 ```bash
-pip install llmcompressor transformers datasets pyyaml
+pip install llmcompressor transformers datasets pyyaml vllm
 pip install lm-eval[vllm]  # For evaluation
 ```
 **Enviroment for GPTAQ**: Follow instruction in the original Repo https://github.com/ModelCloud/GPTQModel
@@ -28,11 +28,11 @@ pip install lm-eval[vllm]  # For evaluation
 
 **For GPTQ, AWQ:**
 ```bash
-python run_quantize_configurable.py --config my_config.yaml
+python scripts/run_quantize_configurable.py --config my_config.yaml
 ```
 **For GPTAQ**
 ```bash
-python gptq_v2.py --model-id Qwen/Qwen3-1.7B --dataset-name openai/gsm8k --subset main --num-samples 2048
+python scripts/gptaq.py --model-id Qwen/Qwen3-1.7B --dataset-name openai/gsm8k --subset main --num-samples 2048
 ```
 
 **For RTN**
@@ -45,17 +45,17 @@ python rtn_quantize.py
 
 **Evaluate baseline model:**
 ```bash
-python run_eval_configurable.py --baseline
+python scripts/run_eval_configurable.py --baseline
 ```
 
 **Evaluate specific quantized models:**
 ```bash
-python run_eval_configurable.py --quantized ./model1 ./model2
+python scripts/run_eval_configurable.py --quantized ./model1 ./model2
 ```
 
 **Evaluate all quantized models:**
 ```bash
-python run_eval_configurable.py --all
+python scripts/run_eval_configurable.py --all
 ```
 
 ## Configuration
@@ -172,3 +172,11 @@ python run_eval_configurable.py --all --task lambada
 - `gsm8k`: Math reasoning
 - `lambada`: Next word prediction
 
+### Efficiency metrics
+
+```bash
+vllm serve Qwen/Qwen3-0.6B --gpu-memory-utilization 0.8  # Deploy model
+cd vllm_benchmark_serving
+python3 run_sweep.py   # Run benchmark
+python3 aggregate_result.py # Aggregate results
+```
