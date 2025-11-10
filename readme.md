@@ -4,8 +4,8 @@ A flexible system for quantizing and evaluating Large Language Models using GPTQ
 
 ## Features
 
-- **Multiple Quantization Methods**: GPTQ, AWQ
-- **Flexible Weight/Activation Bits**: W4A16, W8A16, W4A8, W8A8
+- **Multiple Quantization Methods**: RTN, GPTQ, AWQ, GPTQ
+- **Flexible Weight/Activation Bits**: W4A16, W8A8
 - **Multiple Calibration Datasets**: GSM8K, LAMBADA, UltraChat
 - **SmoothQuant Support**: Optional smoothing for better quantization
 - **YAML Configuration**: Easy-to-manage configuration files
@@ -13,7 +13,7 @@ A flexible system for quantizing and evaluating Large Language Models using GPTQ
 - **Automated Evaluation**: Built-in evaluation pipeline
 
 ## Installation
-**Environemt for RTN, AWQ, GPTQ**
+**Environment for RTN, AWQ, GPTQ**
 ```bash
 pip install llmcompressor transformers datasets pyyaml vllm
 pip install lm-eval[vllm]  # For evaluation
@@ -26,7 +26,7 @@ pip install lm-eval[vllm]  # For evaluation
 
 ### 1. Quantization 
 
-**For GPTQ, AWQ:**
+**For GPTQ, AWQ, RTN:**
 ```bash
 python scripts/run_quantize_configurable.py --config my_config.yaml
 ```
