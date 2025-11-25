@@ -15,12 +15,21 @@ A flexible system for quantizing and evaluating Large Language Models using GPTQ
 ## Installation
 **Environment for RTN, AWQ, GPTQ**
 ```bash
-pip install llmcompressor transformers datasets pyyaml vllm
+pip install -r requirements.txt
 pip install lm-eval[vllm]  # For evaluation
 ```
 **Enviroment for GPTAQ**: Follow instruction in the original Repo https://github.com/ModelCloud/GPTQModel
 
+## Quantized models
+You can access and download all (almost) quantized models in Huggingface https://huggingface.co/collections/chieunq/qwen3-quantized-variants 
 
+## System demo 
+More details about system prompt and few-shot prompts can be seen in `demo.jsonl`
+```
+Input: Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?
+
+Output: The number of eggs Janet uses for breakfast is 3 * 1 = 3 eggs.\nThe number of eggs Janet uses for muffins is 4 * 1 = 4 eggs.\nThe total number of eggs used is 3 + 4 = 7 eggs.\nThe number of eggs left is 16 - 7 = 9 eggs.\nShe sells 9 eggs at the market for $2 each, so she makes 9 * 2 = <<9*2=18>>18 dollars.\n#### 18
+```
 
 ## Quick Start
 
