@@ -37,7 +37,7 @@ Output: The number of eggs Janet uses for breakfast is 3 * 1 = 3 eggs.\nThe numb
 
 **For GPTQ, AWQ, RTN:**
 ```bash
-python scripts/run_quantize_configurable.py --config my_config.yaml
+python scripts/run_quantize_configurable.py --config config/config_quantize.yaml
 ```
 **For GPTAQ**
 ```bash
@@ -73,7 +73,7 @@ python scripts/run_eval_configurable.py --all
 
 ```yaml
 model:
-  model_id: "Qwen/Qwen2.5-0.5B-Instruct"
+  model_id: "Qwen/Qwen3-0.6B"
   torch_dtype: "auto"
 
 quantization:
@@ -114,7 +114,7 @@ output:
 ### Example 1: GPTQ W4A16 on GSM8K
 
 ```bash
-python run_quantize_configurable.py \
+python scripts/run_quantize_configurable.py \
   --method gptq \
   --scheme W4A16 \
   --dataset "openai/gsm8k" \
@@ -124,7 +124,7 @@ python run_quantize_configurable.py \
 ### Example 2: AWQ W8A16 on UltraChat
 
 ```bash
-python run_quantize_configurable.py \
+python scripts/run_quantize_configurable.py \
   --method awq \
   --scheme W8A16 \
   --dataset "HuggingFaceH4/ultrachat_200k" \
@@ -136,13 +136,13 @@ python run_quantize_configurable.py \
 
 ```bash
 # Evaluate baseline
-python run_eval_configurable.py --baseline
+python scripts/run_eval_configurable.py --baseline
 
 # Evaluate all quantized models
-python run_eval_configurable.py --all
+python scripts/run_eval_configurable.py --all
 
 # Evaluate on LAMBADA instead of GSM8K
-python run_eval_configurable.py --all --task lambada
+python scripts/run_eval_configurable.py --all --task lambada
 ```
 
 ## Command-Line Arguments
@@ -182,7 +182,7 @@ python run_eval_configurable.py --all --task lambada
 - `lambada`: Next word prediction
 
 ### Efficiency metrics
-
+We borrow code from https://github.com/gjgjos/vllm_benchmark_serving to measure efficiency (time-to-first-token (TTFT), time-per-output-token (TPOT) and throughput).
 ```bash
 vllm serve Qwen/Qwen3-0.6B --gpu-memory-utilization 0.8  # Deploy model
 cd vllm_benchmark_serving
